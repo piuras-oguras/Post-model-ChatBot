@@ -74,15 +74,12 @@ class GuardModelError(RuntimeError):
 
 # Fallback answers shown to the end user instead of a rejected one (kept in Polish
 # to match the chatbot's user-facing language).
-QUALITY_FALLBACK = (
-    "Nie udało się przygotować odpowiedzi wystarczająco dobrze popartej dostępnymi źródłami."
-)
+QUALITY_FALLBACK = "Nie udało się przygotować odpowiedzi wystarczająco dobrze popartej dostępnymi źródłami."
 SAFETY_FALLBACK = "Nie mogę zwrócić tej odpowiedzi ze względów bezpieczeństwa."
 BLOCKED_ANSWER = SAFETY_FALLBACK
 
 
 class OutputGuard:
-
     def __init__(self, guard_llm: LLM) -> None:
         self._guard_llm = guard_llm
 
@@ -94,7 +91,10 @@ class OutputGuard:
 
         if not answer:
             violations.append(
-                _violation(OutputGuardViolationCode.EMPTY_ANSWER, "Model zwrócił pustą odpowiedź.")
+                _violation(
+                    OutputGuardViolationCode.EMPTY_ANSWER,
+                    "Model zwrócił pustą odpowiedź.",
+                )
             )
         else:
             # Checks run independently and all violations are collected, not short-circuited.
@@ -211,7 +211,10 @@ async def _judge(guard_llm: LLM, policy: str, content: str) -> tuple[bool, str |
     try:
         response = await guard_llm.achat(
             [
-                ChatMessage(role=MessageRole.SYSTEM, content=f"{JUDGE_SYSTEM_PROMPT}\n\n{policy}"),
+                ChatMessage(
+                    role=MessageRole.SYSTEM,
+                    content=f"{JUDGE_SYSTEM_PROMPT}\n\n{policy}",
+                ),
                 ChatMessage(role=MessageRole.USER, content=content),
             ]
         )
@@ -229,9 +232,13 @@ async def _judge(guard_llm: LLM, policy: str, content: str) -> tuple[bool, str |
 
     violation = payload.get("violation")
     if not isinstance(violation, bool):
-        raise GuardModelError(f"guard model reply missing boolean 'violation': {text!r}")
+        raise GuardModelError(
+            f"guard model reply missing boolean 'violation': {text!r}"
+        )
     rationale = payload.get("rationale")
-    reason = rationale.strip() if isinstance(rationale, str) and rationale.strip() else None
+    reason = (
+        rationale.strip() if isinstance(rationale, str) and rationale.strip() else None
+    )
     return violation, reason
 
 
@@ -249,7 +256,11 @@ async def check_relevance_llm(
     )
     if not violation:
         return []
-    return [_not_relevant(reason or "Model-sędzia uznał odpowiedź za niezwiązaną z pytaniem.")]
+    return [
+        _not_relevant(
+            reason or "Model-sędzia uznał odpowiedź za niezwiązaną z pytaniem."
+        )
+    ]
 
 
 async def check_groundedness_llm(
@@ -269,12 +280,16 @@ async def check_groundedness_llm(
     )
     if not violation:
         return []
-    return [_not_grounded(reason or "Model-sędzia uznał odpowiedź za niepopartą źródłami.")]
+    return [
+        _not_grounded(reason or "Model-sędzia uznał odpowiedź za niepopartą źródłami.")
+    ]
 
 
 async def check_safety_llm(answer: str, guard_llm: LLM) -> list[OutputGuardViolation]:
     """Flags an answer containing actionable instructions for causing serious harm."""
-    violation, reason = await _judge(guard_llm, SAFETY_JUDGE_POLICY, f"ANSWER: {answer}")
+    violation, reason = await _judge(
+        guard_llm, SAFETY_JUDGE_POLICY, f"ANSWER: {answer}"
+    )
     if not violation:
         return []
     return [
@@ -287,7 +302,9 @@ async def check_safety_llm(answer: str, guard_llm: LLM) -> list[OutputGuardViola
 
 async def check_leakage_llm(answer: str, guard_llm: LLM) -> list[OutputGuardViolation]:
     """Flags an answer that leaks a real secret value (API key, password, token, ...)."""
-    violation, reason = await _judge(guard_llm, LEAKAGE_JUDGE_POLICY, f"ANSWER: {answer}")
+    violation, reason = await _judge(
+        guard_llm, LEAKAGE_JUDGE_POLICY, f"ANSWER: {answer}"
+    )
     if not violation:
         return []
     return [
@@ -299,7 +316,9 @@ async def check_leakage_llm(answer: str, guard_llm: LLM) -> list[OutputGuardViol
 
 
 def _violation(code: OutputGuardViolationCode, reason: str) -> OutputGuardViolation:
-    return OutputGuardViolation(code=code, reason=reason, severity=OutputGuardSeverity.HIGH)
+    return OutputGuardViolation(
+        code=code, reason=reason, severity=OutputGuardSeverity.HIGH
+    )
 
 
 def _not_relevant(reason: str) -> OutputGuardViolation:

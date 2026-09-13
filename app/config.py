@@ -1,7 +1,8 @@
 from functools import lru_cache
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class GuardModelSettings(BaseSettings):
     """Connection settings for the guard-model LLM (OpenAI-compatible endpoint)."""
@@ -11,10 +12,12 @@ class GuardModelSettings(BaseSettings):
     name: str = "gpt-oss-safeguard:20b"
     request_timeout_seconds: float = 180.0
 
+
 class OutputGuardSettings(BaseSettings):
     """Default behavior for the output guard when a request omits requires_grounding."""
 
     requires_grounding: bool = False
+
 
 class Settings(BaseSettings):
     # Env vars are nested with "__" and prefixed, e.g. POSTMODEL__GUARD_MODEL__NAME.
@@ -35,7 +38,7 @@ class Settings(BaseSettings):
     output_guard: OutputGuardSettings = Field(default_factory=OutputGuardSettings)
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Cached so settings are parsed from env once per process."""
     return Settings()

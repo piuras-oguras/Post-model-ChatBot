@@ -69,7 +69,9 @@ async def check(context: OutputGuardContext) -> OutputGuardResult:
         result = await guard.process(context)
     except GuardModelError:
         # No non-model fallback: a broken guard model must fail loudly (502).
-        logger.exception("postmodel.guard_model_failed session_id=%s", context.session_id)
+        logger.exception(
+            "postmodel.guard_model_failed session_id=%s", context.session_id
+        )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY, detail="guard model call failed"
         ) from None
