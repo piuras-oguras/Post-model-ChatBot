@@ -1,7 +1,8 @@
 from functools import lru_cache
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class GuardModelSettings(BaseSettings):
     """Connection settings for the guard-model LLM (OpenAI-compatible endpoint)."""
@@ -35,7 +36,7 @@ class Settings(BaseSettings):
     output_guard: OutputGuardSettings = Field(default_factory=OutputGuardSettings)
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Cached so settings are parsed from env once per process."""
     return Settings()
