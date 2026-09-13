@@ -10,5 +10,5 @@ def build_guard_llm(settings: GuardModelSettings) -> OpenAILike:
         api_base=settings.base_url,
         api_key=settings.api_key,
         is_chat_model=True,
-        timeout=settings.request_timeout_seconds
+        timeout=settings.request_timeout_seconds,
     )
