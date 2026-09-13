@@ -10,8 +10,6 @@ services:
     environment:
       # Default guard-model URL points at the host's Ollama instance, not the container.
       POSTMODEL__GUARD_MODEL__BASE_URL: ${POSTMODEL__GUARD_MODEL__BASE_URL:-http://host.docker.internal:11434/v1}
-      POSTMODEL__HOST: 0.0.0.0
-      POSTMODEL__PORT: "8011"
     # Lets the container resolve host.docker.internal on Linux hosts too.
     extra_hosts:
       - "host.docker.internal:host-gateway"
